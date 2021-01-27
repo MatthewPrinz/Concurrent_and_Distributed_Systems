@@ -15,7 +15,6 @@ public class MergeTest {
      */
     public static void testRandom(int numThreads) {
         Random rand = new Random();
-        rand.setSeed(1);
         for(int i = 0; i<10; ++i) {
             int aSize = rand.nextInt(500);
             int bSize = rand.nextInt(500);
