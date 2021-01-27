@@ -15,14 +15,15 @@ public class MergeTest {
      */
     public static void testRandom(int numThreads) {
         Random rand = new Random();
+        rand.setSeed(1);
         for(int i = 0; i<10; ++i) {
-            int aSize = rand.nextInt(200);
-            int bSize = rand.nextInt(200);
+            int aSize = rand.nextInt(500);
+            int bSize = rand.nextInt(500);
             int[] a = new int[aSize], b = new int[bSize];
             for(int j = 0; j<a.length; ++j)
-                a[j] = rand.nextInt();
+                a[j] = rand.nextInt(50);
             for(int j = 0; j<b.length; ++j)
-                b[j] = rand.nextInt();
+                b[j] = rand.nextInt(50);
             int[] c = new  int[aSize + bSize];
 
             Arrays.sort(a);
