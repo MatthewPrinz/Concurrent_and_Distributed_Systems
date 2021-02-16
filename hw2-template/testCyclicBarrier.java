@@ -1,13 +1,21 @@
+import java.time.Month;
+
 public class testCyclicBarrier implements Runnable {
 	final static int SIZE = 5;
 	final static int ROUND = 5;
 	
-	final CyclicBarrier gate;
-	
-	public testCyclicBarrier(CyclicBarrier gate) {
+	// final CyclicBarrier gate;
+	final MonitorCyclicBarrier gate;
+
+//	public testCyclicBarrier(CyclicBarrier gate) {
+//		this.gate = gate;
+//	}
+//
+
+	public testCyclicBarrier(MonitorCyclicBarrier gate) {
 		this.gate = gate;
 	}
-	
+
 	public void run() {
 		int index = -1;
 
@@ -23,7 +31,9 @@ public class testCyclicBarrier implements Runnable {
 	}
 	
 	public static void main(String[] args) {
-		CyclicBarrier gate = new CyclicBarrier(SIZE);
+//		CyclicBarrier gate = new CyclicBarrier(SIZE);
+		MonitorCyclicBarrier gate = new MonitorCyclicBarrier(SIZE);
+
 		Thread[] t = new Thread[SIZE];
 		
 		for (int i = 0; i < SIZE; ++i) {
