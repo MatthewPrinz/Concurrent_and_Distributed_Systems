@@ -1,4 +1,5 @@
 *.class
 .idea/
+out/
 hw2-template/out/
 hw2-template/.idea/

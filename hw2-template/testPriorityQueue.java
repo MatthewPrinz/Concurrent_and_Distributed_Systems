@@ -18,6 +18,7 @@ public class testPriorityQueue implements Runnable {
 
     public static void main(String[] args) {
         PriorityQueue pQueue = new PriorityQueue(SIZE);
+		MonitorCyclicBarrier gate = new MonitorCyclicBarrier(SIZE);
 
         Thread[] t = new Thread[SIZE];
 

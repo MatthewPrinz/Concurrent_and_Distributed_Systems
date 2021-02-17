@@ -49,14 +49,14 @@ public class PriorityQueue {
 
 		// check for non-full Linked List
 		capacityLock.lock();
-		while (currSize >= maxSize) {
+		while (currSize.get() >= maxSize) {
 			try {
 				notFull.await();
 			} catch (InterruptedException e) {
 				System.out.println("Caught interrupted exception");
 			}
 		}
-		currSize++;
+		currSize.incrementAndGet();
 		notEmpty.signal();
 		capacityLock.unlock();
 
@@ -69,13 +69,13 @@ public class PriorityQueue {
 		// traverse to correct node (locking pairs along the way)
 		int pos = 0;
 		while (curr.priority <= priority) {
-			if (name == curr.name) {
+			if (name.equals(curr.name)) {
 				prev.rel.unlock();
 				curr.rel.unlock();
 
 				// decrement size bc add unsuccessful
 				capacityLock.lock();
-				currSize--;
+				currSize.decrementAndGet();
 				notFull.notify();
 				capacityLock.unlock();
 				return -1;
