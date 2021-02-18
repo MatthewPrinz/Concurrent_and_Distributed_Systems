@@ -32,17 +32,18 @@ public class FairUnifanBathroom {
     public void enterBathroomUT() {
         int yourTicketNumber = ticketNumber.incrementAndGet();
         bathroomLock.lock();
-//        System.out.println("UT Entering Bathroom, UT Fans inside: " + utFansInBathroom.get() + " number of people currently inside: "
-//                + fansInBathroom.get() + " myticketNumber = " + yourTicketNumber);
+//        System.out.println("UT Thread: " + Thread.currentThread().getName() +  " Entering Bathroom, UT Fans inside: "
+//                + utFansInBathroom.get() + " number of people currently inside: " + fansInBathroom.get() +
+//                " myticketNumber = " + yourTicketNumber);
         try {
-            while (yourTicketNumber > (lastTicketToLeave.get() + 4)) {
+            while (yourTicketNumber > (lastTicketToLeave.get() + 1)) {
                 try {
                     notMyTurn.await();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-//            System.out.println("1) UT Enter -  Passed Ticket verification");
+//            System.out.println("1) UT Thread: " + Thread.currentThread().getName() + " UT Enter - Passed Ticket verification");
             while (ouFansInBathroom.get() > 0) {
                 try {
                     utInBathroom.await();
@@ -50,7 +51,7 @@ public class FairUnifanBathroom {
                     e.printStackTrace();
                 }
             }
-//            System.out.println("2) UT Enter - Passed OUFans check");
+//            System.out.println("2) UT Thread: " + Thread.currentThread().getName() + " UT Enter - Passed OUFans check");
             while (fansInBathroom.get() >= 4) {
                 try {
                     fullBathroom.await();
@@ -58,30 +59,30 @@ public class FairUnifanBathroom {
                     e.printStackTrace();
                 }
             }
-//            System.out.println("3) UT Enter -  Passed total fans check");
+//            System.out.println("3) UT Thread: " + Thread.currentThread().getName() + " UT Enter - Passed total fans check");
             utFansInBathroom.incrementAndGet();
             fansInBathroom.incrementAndGet();
-//            System.out.println("UT Enter - incremented and done.");
         } finally {
             bathroomLock.unlock();
-//            System.out.println("UT Enter - Unlocking the bathroom");
+//            System.out.println("UT Thread: " + Thread.currentThread().getName() + " Enter - Unlocking the bathroom");
         }
     }
 
     public void enterBathroomOU() {
         int yourTicketNumber = ticketNumber.incrementAndGet();
         bathroomLock.lock();
-//        System.out.println("OU Entering Bathroom, OU Fans inside: " + ouFansInBathroom.get() + " number of people currently inside: "
-//                + fansInBathroom.get() + " myticketNumber = " + yourTicketNumber);
+//        System.out.println("OU Thread: " + Thread.currentThread().getName() +  " Entering Bathroom, OU Fans inside: "
+//                + ouFansInBathroom.get() + " number of people currently inside: " + fansInBathroom.get() +
+//                " myticketNumber = " + yourTicketNumber);
         try {
-            while (yourTicketNumber > (lastTicketToLeave.get() + 4)) {
+            while (yourTicketNumber > (lastTicketToLeave.get() + 1)) {
                 try {
                     notMyTurn.await();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-//            System.out.println("1) OU Enter - Passed ticket verification ");
+//            System.out.println("1) OU Thread: " + Thread.currentThread().getName() + " Enter - Passed ticket verification ");
             while (utFansInBathroom.get() > 0) {
                 try {
                     ouInBathroom.await();
@@ -89,7 +90,7 @@ public class FairUnifanBathroom {
                     e.printStackTrace();
                 }
             }
-//            System.out.println("2) OU Enter - Passed UT Fans check ");
+//            System.out.println("2) OU Thread: " + Thread.currentThread().getName() + " Enter - Passed UT Fans check ");
             while (fansInBathroom.get() >= 4) {
                 try {
                     fullBathroom.await();
@@ -97,19 +98,18 @@ public class FairUnifanBathroom {
                     e.printStackTrace();
                 }
             }
-//            System.out.println("3) OU Enter - Passed total Fans check ");
+//            System.out.println("3) OU Thread: " + Thread.currentThread().getName() + " Enter - Passed total Fans check ");
             ouFansInBathroom.incrementAndGet();
             fansInBathroom.incrementAndGet();
-//            System.out.println("OU Enter - incremented and done.");
         } finally {
             bathroomLock.unlock();
-//            System.out.println("OU Enter - Unlocking the bathroom");
+//            System.out.println("OU Thread: " + Thread.currentThread().getName() + " Enter - Unlocking the bathroom");
         }
     }
 
     public void leaveBathroomUT() {
         bathroomLock.lock();
-//        System.out.println("Leaving UT Bathroom, number of people currently inside: "
+//        System.out.println(Thread.currentThread().getName() + " leaving UT Bathroom, number of people currently inside: "
 //                + fansInBathroom.get());
         try {
             lastTicketToLeave.incrementAndGet();
@@ -118,6 +118,7 @@ public class FairUnifanBathroom {
             if (utFansInBathroom.decrementAndGet() == 0) {
                 ouInBathroom.signalAll();
             }
+            notMyTurn.signalAll();
         } finally {
             bathroomLock.unlock();
         }
@@ -125,7 +126,8 @@ public class FairUnifanBathroom {
 
     public void leaveBathroomOU() {
         bathroomLock.lock();
-//        System.out.println("Leaving OU Bathroom, number of people currently inside: " + fansInBathroom.get());
+//        System.out.println(Thread.currentThread().getName() + " leaving OU Bathroom, number of people currently inside: "
+//                + fansInBathroom.get());
         try {
             lastTicketToLeave.incrementAndGet();
             fansInBathroom.decrementAndGet();
@@ -133,6 +135,7 @@ public class FairUnifanBathroom {
             if (ouFansInBathroom.decrementAndGet() == 0) {
                 utInBathroom.signalAll();
             }
+            notMyTurn.signalAll();
         } finally {
             bathroomLock.unlock();
         }

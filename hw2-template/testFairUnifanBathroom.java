@@ -1,6 +1,6 @@
 
 public class testFairUnifanBathroom implements Runnable {
-    final static int SIZE = 4;
+    final static int SIZE = 10;
 
     final FairUnifanBathroom fairUnifanBathroom;
 
