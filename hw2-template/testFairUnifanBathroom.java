@@ -6,7 +6,7 @@ public class testFairUnifanBathroom implements Runnable {
 
     public testFairUnifanBathroom(FairUnifanBathroom fairUnifanBathroom) {
         this.fairUnifanBathroom = fairUnifanBathroom;
-        System.out.println("testFairUnifamBathroom constructor, fairunifambathroom hashcode: " + fairUnifanBathroom.hashCode());
+//        System.out.println("testFairUnifamBathroom constructor, fairunifambathroom hashcode: " + fairUnifanBathroom.hashCode());
     }
 
     public void run() {
@@ -31,7 +31,7 @@ public class testFairUnifanBathroom implements Runnable {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            System.out.println("OU Thread " + Thread.currentThread().getName() + "calling leaving bathroom");
+            System.out.println("OU Thread " + Thread.currentThread().getName() + " calling leaving bathroom");
             fairUnifanBathroom.leaveBathroomOU();
         }
     }

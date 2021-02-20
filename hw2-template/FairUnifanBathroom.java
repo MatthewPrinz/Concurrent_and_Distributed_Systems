@@ -32,9 +32,9 @@ public class FairUnifanBathroom {
     public void enterBathroomUT() {
         int yourTicketNumber = ticketNumber.incrementAndGet();
         bathroomLock.lock();
-//        System.out.println("UT Thread: " + Thread.currentThread().getName() +  " Entering Bathroom, UT Fans inside: "
-//                + utFansInBathroom.get() + " number of people currently inside: " + fansInBathroom.get() +
-//                " myticketNumber = " + yourTicketNumber);
+        System.out.println("UT Thread: " + Thread.currentThread().getName() +  " Entering Bathroom, UT Fans inside: "
+                + utFansInBathroom.get() + " number of people currently inside: " + fansInBathroom.get() +
+                " myticketNumber = " + yourTicketNumber);
         try {
             while (yourTicketNumber > (lastTicketToLeave.get() + 1)) {
                 try {
@@ -71,9 +71,9 @@ public class FairUnifanBathroom {
     public void enterBathroomOU() {
         int yourTicketNumber = ticketNumber.incrementAndGet();
         bathroomLock.lock();
-//        System.out.println("OU Thread: " + Thread.currentThread().getName() +  " Entering Bathroom, OU Fans inside: "
-//                + ouFansInBathroom.get() + " number of people currently inside: " + fansInBathroom.get() +
-//                " myticketNumber = " + yourTicketNumber);
+        System.out.println("OU Thread: " + Thread.currentThread().getName() +  " Entering Bathroom, OU Fans inside: "
+                + ouFansInBathroom.get() + " number of people currently inside: " + fansInBathroom.get() +
+                " myticketNumber = " + yourTicketNumber);
         try {
             while (yourTicketNumber > (lastTicketToLeave.get() + 1)) {
                 try {
@@ -109,8 +109,8 @@ public class FairUnifanBathroom {
 
     public void leaveBathroomUT() {
         bathroomLock.lock();
-//        System.out.println(Thread.currentThread().getName() + " leaving UT Bathroom, number of people currently inside: "
-//                + fansInBathroom.get());
+        System.out.println(Thread.currentThread().getName() + " leaving UT Bathroom, number of people currently inside: "
+                + fansInBathroom.get());
         try {
             lastTicketToLeave.incrementAndGet();
             fansInBathroom.decrementAndGet();
@@ -126,8 +126,8 @@ public class FairUnifanBathroom {
 
     public void leaveBathroomOU() {
         bathroomLock.lock();
-//        System.out.println(Thread.currentThread().getName() + " leaving OU Bathroom, number of people currently inside: "
-//                + fansInBathroom.get());
+        System.out.println(Thread.currentThread().getName() + " leaving OU Bathroom, number of people currently inside: "
+                + fansInBathroom.get());
         try {
             lastTicketToLeave.incrementAndGet();
             fansInBathroom.decrementAndGet();
