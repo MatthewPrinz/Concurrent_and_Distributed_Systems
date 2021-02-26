@@ -20,7 +20,6 @@ public class PriorityQueue {
     ReentrantLock capacityLock = new ReentrantLock();
     final Condition empty = capacityLock.newCondition();
     final Condition full = capacityLock.newCondition();
-    Set<String> names = new HashSet<>();
 
     // implement fine-grained synchronization with lock on each node
     class Node {
@@ -47,7 +46,6 @@ public class PriorityQueue {
         // Adds the name with its priority to this queue.
         // Returns the current position in the list where the name was inserted;
         // otherwise, returns -1 if the name is already present in the list.
-
         // check for non-full Linked List
         capacityLock.lock();
         while (currSize.get() == maxSize) {
@@ -57,10 +55,10 @@ public class PriorityQueue {
                 e.printStackTrace();
             }
         }
-        empty.signalAll();
-        if (names.contains(name))
-            return -1;
+
         capacityLock.unlock();
+        if (this.search(name) != -1)
+            return -1;
         int pos = -1; // -1 because of our head
         Node temp = head;
 
@@ -80,10 +78,10 @@ public class PriorityQueue {
                 newNode = new Node(name, priority, temp.next);
             }
             temp.next = newNode;
-            this.names.add(name);
             currSize.incrementAndGet();
         } finally {
             temp.rel.unlock();
+            empty.signalAll();
         }
         return pos;
     }
@@ -95,10 +93,14 @@ public class PriorityQueue {
         Node temp = this.head;
         int i = -1; // -1 because we have a MaxPrio + 1 head
         while (temp != null) {
+            temp.rel.lock();
+            System.out.println("Name: " + name + " temp.name: " + temp.name);
             if (name.equals(temp.name) && i != -1) {
+                temp.rel.unlock();
                 return i;
             }
             i++;
+            temp.rel.unlock();
             temp = temp.next;
         }
         return -1;
@@ -120,7 +122,6 @@ public class PriorityQueue {
             String removed;
             try {
                 removed = head.next.name;
-                names.remove(head.next.name);
                 if (currSize.get() >= 2)
                     head.next = this.head.next.next;
                 else
