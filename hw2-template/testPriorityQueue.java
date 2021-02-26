@@ -5,7 +5,6 @@ import java.util.Random;
 public class testPriorityQueue implements Runnable {
     final static int NUMTHREADS = 4;
     final static int PQUEUESIZE = 2;
-    // final CyclicBarrier gate;
     final PriorityQueue pQueue;
 
     public testPriorityQueue(PriorityQueue pQueue) {
@@ -21,8 +20,8 @@ public class testPriorityQueue implements Runnable {
 
     public static void main(String[] args) {
         PriorityQueue pQueue = new PriorityQueue(PQUEUESIZE);
-//        testReal(pQueue);
-        testOrder(pQueue);
+        testReal(pQueue);
+        // testOrder(pQueue);
     }
     public static void testAdds(PriorityQueue pQueue)
     {
@@ -69,18 +68,23 @@ public class testPriorityQueue implements Runnable {
         {
             System.out.println(pQueue.getFirst());
         }
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        pQueue.printPQueue();
     }
 
     public static void testOrder(PriorityQueue pQueue)
     {
         pQueue.add("A", 9);
         pQueue.add("B", 9);
-        for (int i = 0; i < 2; i++)
-        {
-            System.out.println(pQueue.search("A"));
-        }
+        System.out.println(pQueue.search("A"));
+        System.out.println(pQueue.search("B"));
         for (int i = 0; i < 2; i++){
-            System.out.println(pQueue.getFirst());
+            System.out.println("removed: " + pQueue.getFirst());
         }
 
     }

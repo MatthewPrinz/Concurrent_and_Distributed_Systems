@@ -38,7 +38,8 @@ public class PriorityQueue {
     public PriorityQueue(int maxSize) {
         // Creates a Priority queue with maximum allowed size as capacity
         // Initialize dummy variables at both start and end of Linked List
-        this.head = new Node("", MAX_PRIORITY + 1, null);
+        this.head = new Node("start", MAX_PRIORITY + 1, null);
+        this.head.next = new Node("end", MIN_PRIORITY-1, null);
         this.maxSize = maxSize;
     }
 
@@ -48,53 +49,80 @@ public class PriorityQueue {
         // otherwise, returns -1 if the name is already present in the list.
         // check for non-full Linked List
         capacityLock.lock();
-        while (currSize.get() == maxSize) {
-            try {
-                full.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        capacityLock.unlock();
-        if (this.search(name) != -1)
-            return -1;
-        int pos = -1; // -1 because of our head
-        Node temp = head;
-
-        while (temp.priority > priority) {
-            pos++;
-            if (temp.next != null && temp.next.priority >= priority) {
-                temp = temp.next;
-            } else
-                break;
-        }
         try {
-            temp.rel.lock();
-            Node newNode;
-            if (pos == currSize.get()) {
-                newNode = new Node(name, priority, null);
-            } else {
-                newNode = new Node(name, priority, temp.next);
+            while (currSize.get() >= maxSize) {
+                full.await();
             }
-            temp.next = newNode;
             currSize.incrementAndGet();
+        } catch (InterruptedException e) {
+            System.out.println("Caught interrupted exception");
         } finally {
-            temp.rel.unlock();
-            empty.signalAll();
+            capacityLock.unlock();
         }
+
+        // This method blocks when the list is full.
+        Node prev = this.head;
+        prev.rel.lock();
+        Node curr = this.head.next;
+        curr.rel.lock();
+
+        // traverse to correct node (locking pairs along the way)
+        int pos = 0;
+        Node addNode = null;    // location to add if successful
+        while (true) {
+            if (name.equals(curr.name)) {
+                prev.rel.unlock();
+                curr.rel.unlock();
+                if (addNode != null) {
+                    addNode.rel.unlock();
+                }
+
+                // decrement size bc add unsuccessful
+                capacityLock.lock();
+                currSize.decrementAndGet();
+                full.notify();
+                capacityLock.unlock();
+                return -1;
+            }
+
+            if (prev.priority >= priority && priority > curr.priority) {
+                addNode = prev;
+                addNode.rel.lock();
+            }
+
+            // hand over hand traversal
+            pos++;
+            prev.rel.unlock();
+            prev = curr;
+            curr = curr.next;
+            if (curr == null) break;
+            curr.rel.lock();
+        }
+
+        // create and add node
+        capacityLock.lock();
+        addNode.next = new Node(name, priority, addNode.next);
+        System.out.println("successfully added node: " + name);
+        prev.rel.unlock();
+        addNode.rel.unlock();
+        empty.signal();
+        capacityLock.unlock();
+
         return pos;
+
+
     }
 
 
     public int search(String name) {
         // Returns the position of the name in the list;
         // otherwise, returns -1 if the name is not found.
+        System.out.println("Searching for " + name);
         Node temp = this.head;
-        int i = -1; // -1 because we have a MaxPrio + 1 head
+        int i = -1; // -1 because we have a MaxPriority + 1 head
         while (temp != null) {
             temp.rel.lock();
-            System.out.println("Name: " + name + " temp.name: " + temp.name);
+            System.out.println("Name: " + name + ", temp.name: " + temp.name);
             if (name.equals(temp.name) && i != -1) {
                 temp.rel.unlock();
                 return i;
@@ -109,32 +137,45 @@ public class PriorityQueue {
     public String getFirst() {
         // Retrieves and removes the name with the highest priority in the list,
         // or blocks the thread if the list is empty.
-        capacityLock.lock();
         try {
+            capacityLock.lock();
             while (currSize.get() == 0) {
-                try {
-                    empty.await();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                empty.await();
             }
-            head.rel.lock();
-            String removed;
-            try {
-                removed = head.next.name;
-                if (currSize.get() >= 2)
-                    head.next = this.head.next.next;
-                else
-                    head.next = null;
-                currSize.decrementAndGet();
-            } finally {
-                head.rel.unlock();
-            }
-            full.signalAll();
-            return removed;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         } finally {
             capacityLock.unlock();
         }
+
+        String removed;
+        try {
+            this.head.rel.lock();
+            this.head.next.rel.lock();
+            this.head.next.rel.unlock();
+            capacityLock.lock();
+            removed = this.head.next.name;
+            System.out.println("removing: " + removed);
+            this.head.next = this.head.next.next;
+
+            System.out.println("size before: " + currSize.get());
+            currSize.decrementAndGet();
+            System.out.println("size after: " + currSize.get());
+            full.signal();
+        } finally {
+            this.head.rel.unlock();
+            capacityLock.unlock();
+        }
+
+        return removed;
+    }
+
+    public void printPQueue() {
+       Node temp = this.head.next;
+       System.out.println("current priority queue:");
+       while (temp.priority > MIN_PRIORITY) {
+            System.out.println(temp.name);
+       }
     }
 }
 
