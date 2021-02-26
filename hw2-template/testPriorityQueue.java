@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class testPriorityQueue implements Runnable {
     final static int NUMTHREADS = 4;
-    final static int PQUEUESIZE = 2;
+    final static int PQUEUESIZE = 5;
     final PriorityQueue pQueue;
 
     public testPriorityQueue(PriorityQueue pQueue) {
@@ -20,8 +20,17 @@ public class testPriorityQueue implements Runnable {
 
     public static void main(String[] args) {
         PriorityQueue pQueue = new PriorityQueue(PQUEUESIZE);
+        pQueue.getFirst();
+        pQueue.add("C", 5);
+        pQueue.add("A", 9);
+        pQueue.add("A", 9);
+        pQueue.add("B", 5);
+        for (int i = 0; i < 5; i++) {
+            System.out.println(pQueue.search("B"));
+            System.out.println(pQueue.getFirst());
+        }
         testReal(pQueue);
-        // testOrder(pQueue);
+         testOrder(pQueue);
     }
     public static void testAdds(PriorityQueue pQueue)
     {
