@@ -1,0 +1,73 @@
+Part A)
+
+// assume N processes communicating
+// only change is checking if current process is one of the
+// top k processes in the queue (assuming linked list queue)
+// Deleting requests from the queue requires traversal as well
+
+Pi::
+    var
+        q: queue of (int, pid) initially null;
+        numAcks: integer initially 0;
+        // Also assumes logical clock algorithm running
+
+    request:
+        send request with (logicalClock, i) to all other processes;
+        insert (logicalClock, i) in q;
+        numAcks := 0
+
+    On receive (request, (ts, j)) from Pj:
+        insert (ts, j) in q;
+        send (ack, logicalClock) to Pj;
+
+    On receive (ack, ts):
+        numAcks := numAcks + 1;
+
+        // traverse through first k elem. of queue
+        if (numAcks = N-1) and Pi's request one of top k elements:
+            then enter the critical section;
+
+    On receive (release) from Pj:
+        delete the request Pj from q;   // may have to traverse the queue
+        if (numAcks = N-1) and Pi's request one of the top k elements:
+            then enter the critical section;
+
+    release:
+        delete the request by Pi from q;
+        send release to all processes;
+
+
+Part B)
+
+// Only change is changing requirement for N-1 okays to
+// at least N-k okays because implies at least k-1 processes
+// have a lower timestamp and thus k-1 processes are in the
+// critical section
+
+Pi::
+    var
+        pendingQ: list of process ids initially null;
+        myts: integer initially ∞;
+        numOkay: integer initially 0;
+
+    request: myts := logicalClock;
+        send request with myts to all other processes;
+        numOkay := 0;
+
+    On receive (request, hists) from Pj:
+        if ((hists, j) < (myts, i)):
+            then send okay to process Pj;
+        else
+            append (pendingQ, j);
+
+    receive (okay):
+        numOkay := numOkay+ 1;
+        if (numOkay >= N−k):    // only N-k processes have to okay
+            then enter critical section;
+
+    release:
+        myts := ∞;
+        for j ∈ pendingQ:
+            do send okay to the process j;
+        pendingQ := null;
+
