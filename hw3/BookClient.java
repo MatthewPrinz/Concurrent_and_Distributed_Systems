@@ -2,12 +2,13 @@ import java.util.Scanner;
 import java.io.*;
 import java.util.*;
 public class BookClient {
+
   public static void main (String[] args) {
     String hostAddress;
     int tcpPort;
     int udpPort;
     int clientId;
-
+    ServerThread.ServerType serverType;
     if (args.length != 2) {
       System.out.println("ERROR: Provide 2 arguments: commandFile, clientId");
       System.out.println("\t(1) <command-file>: file with commands to the server");
@@ -29,11 +30,14 @@ public class BookClient {
           String[] tokens = cmd.split(" ");
 
           if (tokens[0].equals("setmode")) {
-            // TODO: set the mode of communication for sending commands to the server 
+            if (tokens[1].equals("T"))
+              serverType = ServerThread.ServerType.TCP;
+            else
+              serverType = ServerThread.ServerType.UDP;
           }
           else if (tokens[0].equals("borrow")) {
-            // TODO: send appropriate command to the server and display the
-            // appropriate responses form the server
+
+
           } else if (tokens[0].equals("return")) {
             // TODO: send appropriate command to the server and display the
             // appropriate responses form the server
