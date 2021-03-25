@@ -70,7 +70,8 @@ public class BookClient {
                         datagramSocket.send(sPacket);
 //                        System.out.println("Done setting to UDP");
                     }
-                } else if (tokens[0].equals("borrow")) {
+                } else if (tokens[0].equals("borrow") || tokens[0].equals("return") || tokens[0].equals("list") ||
+                        tokens[0].equals("inventory") || tokens[0].equals("exit")) {
 //                    System.out.println("BookClient: in borrow");
                     if (serverType == OurServerThread.ServerType.UDP) {
                         sPacket = new DatagramPacket(bytes, bytes.length, ia, udpPort);
@@ -81,54 +82,8 @@ public class BookClient {
                         pout.flush();
 //                        System.out.println("Sending cmd: " + cmd + " over Tcp");
                     }
-                } else if (tokens[0].equals("return")) {
-//                    System.out.println("BookClient: in return");
-                    if (serverType == OurServerThread.ServerType.UDP) {
-                        sPacket = new DatagramPacket(bytes, bytes.length, ia, udpPort);
-                        datagramSocket.send(sPacket);
-//                        System.out.println("return: Sending: " + Arrays.toString(bytes));
-                    }
-                    else
-                    {
-                        pout.println(cmd);
-                        pout.flush();
-                    }
-                } else if (tokens[0].equals("inventory")) {
-//                    System.out.println("BookClient: in inventory");
-                    if (serverType == OurServerThread.ServerType.UDP) {
-                        sPacket = new DatagramPacket(bytes, bytes.length, ia, udpPort);
-                        datagramSocket.send(sPacket);
-//                        System.out.println("inventory: Sending: " + Arrays.toString(bytes));
-                    }
-                    else
-                    {
-                        pout.println(cmd);
-                        pout.flush();
-                    }
-                } else if (tokens[0].equals("list")) {
-//                    System.out.println("BookClient: in list");
-                    if (serverType == OurServerThread.ServerType.UDP) {
-                        sPacket = new DatagramPacket(bytes, bytes.length, ia, udpPort);
-                        datagramSocket.send(sPacket);
-//                        System.out.println("list: Sending: " + Arrays.toString(bytes));
-                    }
-                    else
-                    {
-                        pout.println(cmd);
-                        pout.flush();
-                    }
-                } else if (tokens[0].equals("exit")) {
-                    if (serverType == OurServerThread.ServerType.UDP) {
-                        sPacket = new DatagramPacket(bytes, bytes.length, ia, udpPort);
-                        datagramSocket.send(sPacket);
-//                        System.out.println("exit: Sending: " + Arrays.toString(bytes));
-                    }
-                    else
-                    {
-                        pout.println(cmd);
-                        pout.flush();
-                    }
-                    break;
+                    if (tokens[0].equals("exit"))
+                        break;
                 } else {
                     System.out.println("ERROR: No such command");
                 }
