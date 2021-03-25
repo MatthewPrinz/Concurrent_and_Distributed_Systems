@@ -6,12 +6,12 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class ServerThread extends Thread {
-    DatagramPacket rPacket;
-    Library library;
-    DatagramSocket datagramSocket;
-    ServerSocket serverSocket;
-    Socket tcpSocket;
-    ServerType serverType;
+    public DatagramPacket rPacket;
+    public Library library;
+    public DatagramSocket datagramSocket;
+    public ServerSocket serverSocket;
+    public Socket tcpSocket;
+    public ServerType serverType;
 
     public enum ServerType {
         TCP,
