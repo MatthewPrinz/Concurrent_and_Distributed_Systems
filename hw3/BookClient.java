@@ -13,7 +13,7 @@ public class BookClient {
 
         // TCP stuff
         int tcpPort;
-        Socket server;
+        Socket server = null;
         PrintStream pout = null;
         Scanner din = null;
 
@@ -47,6 +47,7 @@ public class BookClient {
                     server = new Socket(ia, tcpPort);
                     pout = new PrintStream(server.getOutputStream());
                     din = new Scanner(server.getInputStream());
+                    System.out.println("Reinitializing server, pout, din");
                 }
                 String cmd = sc.nextLine();
                 String[] tokens = cmd.split(" ");
@@ -72,14 +73,18 @@ public class BookClient {
                         System.out.println("Done setting to UDP");
                     }
                 } else if (tokens[0].equals("borrow")) {
+                    System.out.println("BookClient: in borrow");
                     if (serverType == OurServerThread.ServerType.UDP) {
                         sPacket = new DatagramPacket(bytes, bytes.length, ia, udpPort);
                         datagramSocket.send(sPacket);
                         System.out.println("borrow: Sending: " + Arrays.toString(bytes));
                     } else {
                         pout.println(cmd);
+                        pout.flush();
+                        System.out.println("Sending cmd: " + cmd + " over Tcp");
                     }
                 } else if (tokens[0].equals("return")) {
+                    System.out.println("BookClient: in return");
                     if (serverType == OurServerThread.ServerType.UDP) {
                         sPacket = new DatagramPacket(bytes, bytes.length, ia, udpPort);
                         datagramSocket.send(sPacket);
@@ -88,8 +93,10 @@ public class BookClient {
                     else
                     {
                         pout.println(cmd);
+                        pout.flush();
                     }
                 } else if (tokens[0].equals("inventory")) {
+                    System.out.println("BookClient: in inventory");
                     if (serverType == OurServerThread.ServerType.UDP) {
                         sPacket = new DatagramPacket(bytes, bytes.length, ia, udpPort);
                         datagramSocket.send(sPacket);
@@ -98,8 +105,10 @@ public class BookClient {
                     else
                     {
                         pout.println(cmd);
+                        pout.flush();
                     }
                 } else if (tokens[0].equals("list")) {
+                    System.out.println("BookClient: in list");
                     if (serverType == OurServerThread.ServerType.UDP) {
                         sPacket = new DatagramPacket(bytes, bytes.length, ia, udpPort);
                         datagramSocket.send(sPacket);
@@ -108,6 +117,7 @@ public class BookClient {
                     else
                     {
                         pout.println(cmd);
+                        pout.flush();
                     }
                 } else if (tokens[0].equals("exit")) {
                     if (serverType == OurServerThread.ServerType.UDP) {
@@ -118,6 +128,7 @@ public class BookClient {
                     else
                     {
                         pout.println(cmd);
+                        pout.flush();
                     }
                     break;
                 } else {
@@ -132,6 +143,7 @@ public class BookClient {
                     retString = new String(rPacket.getData(), 0, rPacket.getLength());
                 } else {
                     retString = din.nextLine();
+                    server.close();
                     System.out.println("Received TCP response from server");
                 }
                 System.out.println("Response is: " + retString);

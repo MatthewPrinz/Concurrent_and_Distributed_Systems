@@ -93,7 +93,7 @@ public class OurLibrary {
     }
     public synchronized void exit() {
         try {
-            BufferedWriter out = new BufferedWriter(new FileWriter("inventory_correct.txt"));
+            BufferedWriter out = new BufferedWriter(new FileWriter("inventory.txt"));
             out.write(inventory());
             out.close();
         } catch (IOException e) {

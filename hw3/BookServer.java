@@ -26,8 +26,10 @@ public class BookServer {
         File inventoryText = new File(args[0]);
         Scanner reader = new Scanner(inventoryText);
         while (reader.hasNextLine()) {
-            String[] data = reader.nextLine().split("\" ");
-            inventory.put(data[0].substring(1), Integer.parseInt(data[data.length-1]));
+            String in = reader.nextLine();
+            String[] data = in.split(" ");
+            String title = in.substring(in.indexOf('"'), in.lastIndexOf('"')+1);
+            inventory.put(title, Integer.parseInt(data[data.length-1]));
         }
         System.out.println(inventory);
         OurLibrary ourLibrary = new OurLibrary(inventory);

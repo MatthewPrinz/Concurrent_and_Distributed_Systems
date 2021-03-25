@@ -27,6 +27,7 @@ public class OurServerThread extends Thread {
                 rPacket.getPort());
         try {
             datagramSocket.send(sPacket);
+            System.out.println("ServerThread:SendUDP: " + response);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -38,6 +39,9 @@ public class OurServerThread extends Thread {
             pout = new PrintWriter(tcpSocket.getOutputStream());
             pout.println(response);
             pout.flush();
+            System.out.println("ServerThread:SendTCP: " + response);
+            tcpSocket.close();
+            din.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -61,14 +65,21 @@ public class OurServerThread extends Thread {
             }
             else
             {
+                try {
+                    tcpSocket = serverSocket.accept();
+                    din = new Scanner(tcpSocket.getInputStream());
+                    pout = new PrintWriter(tcpSocket.getOutputStream());
+                } catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
                 command = din.nextLine().split(" ");
-                System.out.println("Over TCP, client: " + Arrays.toString(command));
+                System.out.println("Over TCP, client sent us: " + Arrays.toString(command));
             }
             String response;
-            System.out.println("OurServerThread: " + Arrays.toString(command));
             if (command[0].equals("setmode")) {
+                System.out.println("OurServerThread: in setmode");
                 if (command[1].toCharArray()[0] == 'T') {
-                    System.out.println("In setmode: In T");
                     this.serverType = ServerType.TCP;
                     try {
                         System.out.println("Trying to establish TCP Connection");
@@ -84,7 +95,6 @@ public class OurServerThread extends Thread {
                 }
                 else if (command[1].toCharArray()[0] == 'U')
                 {
-                    System.out.println("In setmode: In U");
                     this.serverType = ServerType.UDP;
                     response = "The communication mode is set to UCP";
                     sendUDP(response);
@@ -93,7 +103,7 @@ public class OurServerThread extends Thread {
                     System.out.println("In setmode, command1 != T and U, it is: " + Arrays.toString(command[1].toCharArray()));
                 }
             } else if (command[0].equals("borrow")) {
-                System.out.println("In borrow");
+                System.out.println("OurServerThread: In borrow");
                 String student = command[1];
                 String book = command[2];
                 response = ourLibrary.borrow(student, book);
@@ -102,28 +112,28 @@ public class OurServerThread extends Thread {
                 else
                     sendTCP(response);
             } else if (command[0].equals("return")) {
-                System.out.println("In return");
+                System.out.println("OurServerThread: In return");
                 response = ourLibrary.returnBook(Integer.parseInt(command[1]));
                 if (serverType == ServerType.UDP)
                     sendUDP(response);
                 else
                     sendTCP(response);
             } else if (command[0].equals("inventory")) {
-                System.out.println("In inventory");
+                System.out.println("OurServerThread: In inventory");
                 response = ourLibrary.inventory();
                 if (serverType == ServerType.UDP)
                     sendUDP(response);
                 else
                     sendTCP(response);
             } else if (command[0].equals("list")) {
-                System.out.println("In list");
+                System.out.println("OurServerThread: In list");
                 response = ourLibrary.list(command[1]);
                 if (serverType == ServerType.UDP)
                     sendUDP(response);
                 else
                     sendTCP(response);
             } else if (command[0].equals("exit")) {
-                System.out.println("In exit");
+                System.out.println("OurServerThread: In exit");
                 ourLibrary.exit();
                 break;
             } else {
