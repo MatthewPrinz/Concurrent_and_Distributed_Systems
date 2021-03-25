@@ -48,63 +48,55 @@ public class ServerThread extends Thread {
     }
 
     public void run() {
-        byte[] buf = new byte[1024];
-
-        String rawCommand = new String(buf);
-        String[] command = rawCommand.split(" ");
-        String response;
-        if (command[0].equals("setmode")) {
-            if (command[1].equals("T")) {
-                this.serverType = ServerType.TCP;
-                Socket s;
-                try {
-                    // while?
-                    if ((s = serverSocket.accept()) != null) {
-                        tcpSocket = s;
+        while (true) {
+            byte[] buf = new byte[1024];
+            String rawCommand = new String(buf);
+            String[] command = rawCommand.split(" ");
+            String response;
+            if (command[0].equals("setmode")) {
+                if (command[1].equals("T")) {
+                    this.serverType = ServerType.TCP;
+                    Socket s;
+                    try {
+                        while ((s = serverSocket.accept()) != null) {
+                            tcpSocket = s;
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
-            }
-        } else if (command[0].equals("borrow")) {
-            String student = command[1];
-            String book = command[2];
-            int code = library.borrow(student, book);
-            if (code == -1) {
-                response = "Request Failed - We do not have this book";
-            } else if (code == -2) {
-                response = "Request Failed - Book not available";
+            } else if (command[0].equals("borrow")) {
+                String student = command[1];
+                String book = command[2];
+                String response = library.borrow(student, book);
+                if (serverType == ServerType.UDP)
+                    sendUDP(response);
+                else
+                    sendTCP(response);
+            } else if (command[0].equals("return")) {
+                response = library.returnBook(Integer.parseInt(command[1]));
+                if (serverType == ServerType.UDP)
+                    sendUDP(response);
+                else
+                    sendTCP(response);
+            } else if (command[0].equals("inventory")) {
+                response = library.inventory();
+                if (serverType == ServerType.UDP)
+                    sendUDP(response);
+                else
+                    sendTCP(response);
+            } else if (command[0].equals("list")) {
+                response = library.list(command[1]);
+                if (serverType == ServerType.UDP)
+                    sendUDP(response);
+                else
+                    sendTCP(response);
+            } else if (command[0].equals("exit")) {
+                library.exit();
+                break;
             } else {
-                response = "Your request has been approved, " + code + " " + student + " " + book;
+                System.out.println("ERROR: No such command");
             }
-            if (serverType == ServerType.UDP)
-                sendUDP(response);
-            else
-                sendTCP(response);
-        } else if (command[0].equals("return")) {
-            response = library.returnBook(Integer.parseInt(command[1]));
-            if (serverType == ServerType.UDP)
-                sendUDP(response);
-            else
-                sendTCP(response);
-        } else if (command[0].equals("inventory")) {
-            response = library.inventory();
-            if (serverType == ServerType.UDP)
-                sendUDP(response);
-            else
-                sendTCP(response);
-        } else if (command[0].equals("list")) {
-            response = library.list(command[1]);
-            if (serverType == ServerType.UDP)
-                sendUDP(response);
-            else
-                sendTCP(response);
-        } else if (command[0].equals("exit")) {
-            library.exit();
-            // System.exit?
-        } else {
-            System.out.println("ERROR: No such command");
         }
-
     }
 }

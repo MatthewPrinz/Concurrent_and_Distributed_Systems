@@ -37,7 +37,6 @@ public class BookClient {
           }
           else if (tokens[0].equals("borrow")) {
 
-
           } else if (tokens[0].equals("return")) {
             // TODO: send appropriate command to the server and display the
             // appropriate responses form the server

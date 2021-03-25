@@ -68,11 +68,11 @@ public class Library {
      * @param bookName name of the book the student wants to borrow
      * @return -1 if the library does not have the book, -2 if the library is out of the book, recordId if successful
      */
-    public synchronized int borrow(String studentName, String bookName) {
+    public synchronized String borrow(String studentName, String bookName) {
         if (!inventory.containsKey(bookName)) {
-            return -1;
+            return "Request Failed - We do not have this book";
         } else if (inventory.get(bookName) == 0) {
-            return -2;
+            return "Request Failed - Book not available";
         } else {
             int copiesNow = inventory.get(bookName) - 1;
             inventory.put(bookName, copiesNow);
@@ -88,7 +88,7 @@ public class Library {
                 }
             }
             record.put(recordId, bookName);
-            return recordId;
+            return "Your request has been approved, " + recordId + " " + student + " " + book;
         }
     }
     public synchronized void exit() {

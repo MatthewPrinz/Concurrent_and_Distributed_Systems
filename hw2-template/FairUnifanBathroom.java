@@ -45,10 +45,10 @@ public class FairUnifanBathroom {
             utFansInBathroom.incrementAndGet();
             fansInBathroom.incrementAndGet();
             lastTicketToLeave.incrementAndGet();
-//            System.out.println("UT Thread (" + Thread.currentThread().getName() + ") finished incrementing variables. UTFansInBathroom: "
-//                    + utFansInBathroom.get() + " OUFansInBathroom: " + ouFansInBathroom.get() +
-//                    " totalFansInBathroom: " + fansInBathroom.get() + " ticketNumber: " + yourTicketNumber +
-//                    " LastTicketToLeave: " + lastTicketToLeave.get());
+            System.out.println("UT Thread (" + Thread.currentThread().getName() + ") finished incrementing variables. UTFansInBathroom: "
+                    + utFansInBathroom.get() + " OUFansInBathroom: " + ouFansInBathroom.get() +
+                    " totalFansInBathroom: " + fansInBathroom.get() + " ticketNumber: " + yourTicketNumber +
+                    " LastTicketToLeave: " + lastTicketToLeave.get());
         } finally {
             bathroomLock.unlock();
         }
@@ -75,10 +75,10 @@ public class FairUnifanBathroom {
             ouFansInBathroom.incrementAndGet();
             fansInBathroom.incrementAndGet();
             lastTicketToLeave.incrementAndGet();
-//            System.out.println("OU Thread (" + Thread.currentThread().getName() + ") finished incrementing variables. UTFansInBathroom: "
-//                    + utFansInBathroom.get() + " OUFansInBathroom: " + ouFansInBathroom.get() +
-//                    " totalFansInBathroom: " + fansInBathroom.get() + " ticketNumber: " + yourTicketNumber +
-//                    " LastTicketToLeave: " + lastTicketToLeave.get());
+            System.out.println("OU Thread (" + Thread.currentThread().getName() + ") finished incrementing variables. UTFansInBathroom: "
+                    + utFansInBathroom.get() + " OUFansInBathroom: " + ouFansInBathroom.get() +
+                    " totalFansInBathroom: " + fansInBathroom.get() + " ticketNumber: " + yourTicketNumber +
+                    " LastTicketToLeave: " + lastTicketToLeave.get());
         } finally {
             bathroomLock.unlock();
         }
