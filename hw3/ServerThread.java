@@ -68,7 +68,7 @@ public class ServerThread extends Thread {
             } else if (command[0].equals("borrow")) {
                 String student = command[1];
                 String book = command[2];
-                String response = library.borrow(student, book);
+                response = library.borrow(student, book);
                 if (serverType == ServerType.UDP)
                     sendUDP(response);
                 else
