@@ -1,3 +1,5 @@
+The communication mode is set to TCP
+The communication mode is set to UCP
 Your request has been approved, 1 Mike "The Letter"
 Request Failed - Book not available
 Your request has been approved, 2 Lucy "Divergent"

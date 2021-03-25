@@ -5,6 +5,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class OurLibrary {
+    // Kinda being overly cautious by using ConcurrentHashMap/SynchronizedList, considering all methods are
+    // synchronized, but whatever.
     int recordId;
 
     // BookName -> Count

@@ -53,12 +53,13 @@ public class OurServerThread extends Thread {
     }
 
     public void run() {
-        label:
+        // This is the only way for our switch statement to work
+        exit:
         while (true) {
             String[] command;
-            String rawCommand;
+            String rawCommand = null;
             if (ServerType.UDP == serverType) {
-                rawCommand = new String(rPacket.getData());
+                rawCommand = new String(rPacket.getData(), 0, rPacket.getLength());
             }
             else
             {
@@ -70,8 +71,11 @@ public class OurServerThread extends Thread {
                 {
                     e.printStackTrace();
                 }
-                rawCommand = din.nextLine();
+                if (din.hasNextLine())
+                    rawCommand = din.nextLine();
             }
+            if (rawCommand == null)
+                break;
             command = rawCommand.split(" ");
             String response;
             switch (command[0]) {
@@ -129,7 +133,7 @@ public class OurServerThread extends Thread {
                     break;
                 case "exit":
                     ourLibrary.exit();
-                    break label;
+                    break exit;
             }
             if (serverType == ServerType.UDP) {
                 try {
