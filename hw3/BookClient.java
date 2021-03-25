@@ -1,14 +1,27 @@
+import java.net.*;
 import java.util.Scanner;
 import java.io.*;
 import java.util.*;
 public class BookClient {
-
+    PrintStream pout;
+    Socket server;
+  public void getSocket(InetAddress ia, int port) throws IOException
+  {
+    server = new Socket(ia, port);
+    pout = new PrintStream(server.getOutputStream());
+  }
+  
   public static void main (String[] args) {
+    BookClient bookClient = new BookClient();
+    // UDP stuff
     String hostAddress;
-    int tcpPort;
     int udpPort;
     int clientId;
-    ServerThread.ServerType serverType;
+
+    // TCP stuff
+    int tcpPort;
+
+
     if (args.length != 2) {
       System.out.println("ERROR: Provide 2 arguments: commandFile, clientId");
       System.out.println("\t(1) <command-file>: file with commands to the server");
@@ -21,14 +34,27 @@ public class BookClient {
     hostAddress = "localhost";
     tcpPort = 7000;// hardcoded -- must match the server's tcp port
     udpPort = 8000;// hardcoded -- must match the server's udp port
-
     try {
+        ServerThread.ServerType serverType = ServerThread.ServerType.UDP;
         Scanner sc = new Scanner(new FileReader(commandFile));
-
+        InetAddress ia = InetAddress.getByName(hostAddress);
+        DatagramSocket datagramSocket = new DatagramSocket();
+        DatagramPacket sPacket, rPacket;
+        byte[] rbuffer = new byte[1024];
+        rPacket = new DatagramPacket(rbuffer, rbuffer.length);
         while(sc.hasNextLine()) {
+          if (serverType == ServerThread.ServerType.UDP) {
+            datagramSocket.receive(rPacket);
+            String retString = new String(rPacket.getData(), 0, rPacket.getLength());
+            System.out.println(retString);
+          }
+          else {
+            server = new Socket(ia, tcpPort);
+            pout = new PrintStream(server.getOutputStream());
+          }
           String cmd = sc.nextLine();
           String[] tokens = cmd.split(" ");
-
+          byte[] bytes = cmd.getBytes();
           if (tokens[0].equals("setmode")) {
             if (tokens[1].equals("T"))
               serverType = ServerThread.ServerType.TCP;
@@ -36,8 +62,21 @@ public class BookClient {
               serverType = ServerThread.ServerType.UDP;
           }
           else if (tokens[0].equals("borrow")) {
+            if (serverType == ServerThread.ServerType.UDP) {
+              sPacket = new DatagramPacket(bytes, bytes.length, ia, udpPort);
+              datagramSocket.send(sPacket);
 
+            }
+            else if (serverType == ServerThread.ServerType.TCP)
+            {
+
+            }
           } else if (tokens[0].equals("return")) {
+            if (serverType == ServerThread.ServerType.UDP)
+            {
+              sPacket = new DatagramPacket(bytes, bytes.length, ia, udpPort);
+              datagramSocket.send(sPacket);
+            }
             // TODO: send appropriate command to the server and display the
             // appropriate responses form the server
           } else if (tokens[0].equals("inventory")) {
@@ -52,7 +91,7 @@ public class BookClient {
             System.out.println("ERROR: No such command");
           }
         }
-    } catch (FileNotFoundException e) {
+    } catch (IOException e) {
 	e.printStackTrace();
     }
   }
