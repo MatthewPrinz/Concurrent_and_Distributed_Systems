@@ -45,9 +45,9 @@ public class BookServer {
             while (true) {
                 byte[] buf = new byte[1024];
                 DatagramPacket rPacket = new DatagramPacket(buf, buf.length);
-                System.out.println("About to block");
+//                System.out.println("About to block");
                 datagramSocket.receive(rPacket);
-                System.out.println("BookServer: " + Arrays.toString(rPacket.getData()));
+//                System.out.println("BookServer: " + Arrays.toString(rPacket.getData()));
                 Thread t = new OurServerThread(tcpListener, datagramSocket, rPacket, ourLibrary);
                 t.start();
             }

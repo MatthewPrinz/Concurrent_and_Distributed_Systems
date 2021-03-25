@@ -36,7 +36,7 @@ public class OurLibrary {
                 }
             }
         }
-        return recordId + "not found, no such borrow record";
+        return recordId + " not found, no such borrow record";
     }
 
     public synchronized String inventory() {
@@ -44,14 +44,13 @@ public class OurLibrary {
         for (Map.Entry<String, Integer> me : inventory.entrySet()) {
             sb.append(me.getKey()).append(" ").append(me.getValue()).append('\n');
         }
+        System.out.println("sb" + sb);
         return sb.toString();
     }
 
     public synchronized String list(String studentName) {
-        for (Student s : borrowers)
-        {
-            if (s.toString().equals(studentName))
-            {
+        for (Student s : borrowers) {
+            if (s.toString().equals(studentName)) {
                 return s.list();
             }
         }
@@ -60,12 +59,13 @@ public class OurLibrary {
 
     /**
      * If valid:
-     *      Creates Student if not already present in borrowers, adds book to Student's "borrowed" list, updates
-     *      inventory, updates record
+     * Creates Student if not already present in borrowers, adds book to Student's "borrowed" list, updates
+     * inventory, updates record
      * else:
-     *      return error code
+     * return error code
+     *
      * @param studentName name of the student that is doing the borrowing
-     * @param bookName name of the book the student wants to borrow
+     * @param bookName    name of the book the student wants to borrow
      * @return -1 if the library does not have the book, -2 if the library is out of the book, recordId if successful
      */
     public synchronized String borrow(String studentName, String bookName) {
@@ -75,26 +75,32 @@ public class OurLibrary {
             return "Request Failed - Book not available";
         } else {
             int copiesNow = inventory.get(bookName) - 1;
+            boolean found = false;
             inventory.put(bookName, copiesNow);
             recordId++;
             for (Student s : borrowers) {
                 if (s.toString().equals(studentName)) {
                     s.getBorrowed().put(recordId, bookName);
+                    found = true;
                     break;
-                } else {
-                    Student newStudent = new Student(studentName);
-                    newStudent.getBorrowed().put(recordId, bookName);
-                    borrowers.add(newStudent);
                 }
             }
+            if (!found) {
+                Student newStudent = new Student(studentName);
+                newStudent.getBorrowed().put(recordId, bookName);
+                borrowers.add(newStudent);
+            }
+            System.out.println("Borrowers: " + borrowers);
             record.put(recordId, bookName);
             return "Your request has been approved, " + recordId + " " + studentName + " " + bookName;
         }
     }
+
     public synchronized void exit() {
         try {
             BufferedWriter out = new BufferedWriter(new FileWriter("inventory.txt"));
             out.write(inventory());
+            out.flush();
             out.close();
         } catch (IOException e) {
             e.printStackTrace();
