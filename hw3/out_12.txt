@@ -1,0 +1,11 @@
+The communication mode is set to TCP
+The communication mode is set to UCP
+Request Failed - Book not available
+Request Failed - Book not available
+Your request has been approved, 5 Lucy "Divergent"
+3 "The Letter"
+1 not found, no such borrow record
+"The Letter" 0
+"The Count of Monte Cristo" 17
+"The Great Gatsby" 15
+"Divergent" 7

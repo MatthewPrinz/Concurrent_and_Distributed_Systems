@@ -1,0 +1,2 @@
+5 is returned
+6 not found, no such borrow record
