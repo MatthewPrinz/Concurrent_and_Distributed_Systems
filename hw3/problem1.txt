@@ -1,0 +1,44 @@
+// Assumption: There is no limit to the amount of reads at any moment
+// Note: requestType is an enum with values READ and WRITE
+// Our solution is not starvation free but it does solve mutual
+// exclusion for the reader writer problem
+
+Pi::
+    var
+        q: queue of (int, pid) initially null;
+        // Also assumes logical clock algorithm running
+
+    // the request is ordered in the queue such that READS are always
+    // ahead of WRITES. After that, they are sorted by timestamps.
+    request (requestType):
+        send request with (logicalClock, i, requestType) to all other processes;
+        insert (logicalClock, i, requestType) in q;
+        numAcks = 0;
+
+    On receive (request, (ts, j, requestType)) from Pj:
+        insert (ts, j, requestType) in q;
+        send (ack, logicalClock) to Pj;
+
+    on receive (ack, ts) from Pj:
+        numAcks = numAcks + 1;
+
+        if (numAcks = N-1 and top request is a READ and Pi's request is a READ):
+            // reads can keep going until a writer is the smallest in q
+            // i.e. reads can hold a lock on the queue
+            enter the critical section;
+        else if (numAcks = N-1 and Pi's request is the top request):
+            // writes can only enter if it's the top request
+            // similar to a write lock
+            enter the critical section;
+
+    On receive (release) from Pj:
+        delete the request Pj from q;   // may have to traverse the queue
+
+        if (numAcks = N-1 and top request is a READ and Pi's request is a READ):
+            enter the critical section;
+        else if (numAcks = N-1 and Pi's request is the top request):
+            enter the critical section;
+
+    release:
+        delete the request by Pi from q;
+        send release to all processes;
