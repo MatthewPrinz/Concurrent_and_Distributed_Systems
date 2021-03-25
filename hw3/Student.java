@@ -1,4 +1,3 @@
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,7 +24,8 @@ public class Student {
         {
             sb.append(me.getKey()).append(" ").append(me.getValue()).append('\n');
         }
-        return sb.toString();
+        // Removing last '\n' due to how BookClient writes lines
+        return sb.substring(0, sb.length()-1);
     }
 
     public String toString()
