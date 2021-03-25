@@ -31,23 +31,15 @@ public class BookServer {
             String title = in.substring(in.indexOf('"'), in.lastIndexOf('"')+1);
             inventory.put(title, Integer.parseInt(data[data.length-1]));
         }
-        System.out.println(inventory);
         OurLibrary ourLibrary = new OurLibrary(inventory);
         try {
             ServerSocket tcpListener = new ServerSocket(tcpPort);
             DatagramSocket datagramSocket = new DatagramSocket(udpPort);
-            // parallelize UDP (spin off new thread to handle it, in case of multiple UDPpackets coming in at same time)
-            // do we want 2 different classes? serverudpthread and servertcpthread?
 
-            // pretty sure we want 1 class, that way we can switch back and forth easier. so i think we must pass
-            // tcpListener over
-            //
             while (true) {
                 byte[] buf = new byte[1024];
                 DatagramPacket rPacket = new DatagramPacket(buf, buf.length);
-//                System.out.println("About to block");
                 datagramSocket.receive(rPacket);
-//                System.out.println("BookServer: " + Arrays.toString(rPacket.getData()));
                 Thread t = new OurServerThread(tcpListener, datagramSocket, rPacket, ourLibrary);
                 t.start();
             }

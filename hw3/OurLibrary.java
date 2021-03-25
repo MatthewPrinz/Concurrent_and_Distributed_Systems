@@ -44,8 +44,8 @@ public class OurLibrary {
         for (Map.Entry<String, Integer> me : inventory.entrySet()) {
             sb.append(me.getKey()).append(" ").append(me.getValue()).append('\n');
         }
-        System.out.println("sb" + sb);
-        return sb.toString();
+        // Removing last '\n' due to how BookClient writes lines
+        return sb.substring(0, sb.length()-1);
     }
 
     public synchronized String list(String studentName) {
@@ -90,7 +90,6 @@ public class OurLibrary {
                 newStudent.getBorrowed().put(recordId, bookName);
                 borrowers.add(newStudent);
             }
-            System.out.println("Borrowers: " + borrowers);
             record.put(recordId, bookName);
             return "Your request has been approved, " + recordId + " " + studentName + " " + bookName;
         }
