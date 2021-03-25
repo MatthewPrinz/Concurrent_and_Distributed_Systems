@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Library {
+public class OurLibrary {
     int recordId;
 
     // BookName -> Count
@@ -16,7 +16,7 @@ public class Library {
 
     List<Student> borrowers;
 
-    public Library(Map<String, Integer> inventory) {
+    public OurLibrary(Map<String, Integer> inventory) {
         this.inventory = inventory;
         this.borrowers = Collections.synchronizedList(new ArrayList<>());
         recordId = 0;
@@ -88,12 +88,12 @@ public class Library {
                 }
             }
             record.put(recordId, bookName);
-            return "Your request has been approved, " + recordId + " " + student + " " + book;
+            return "Your request has been approved, " + recordId + " " + studentName + " " + bookName;
         }
     }
     public synchronized void exit() {
         try {
-            BufferedWriter out = new BufferedWriter(new FileWriter("inventory.txt"));
+            BufferedWriter out = new BufferedWriter(new FileWriter("inventory_correct.txt"));
             out.write(inventory());
             out.close();
         } catch (IOException e) {

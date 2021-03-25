@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,21 +17,20 @@ public class BookServer {
             System.out.println("ERROR: Provide 1 argument: input file containing initial inventory");
             System.exit(-1);
         }
-        String fileName = args[0];
         tcpPort = 7000;
         udpPort = 8000;
         // Book -> Count
         Map<String, Integer> inventory = new ConcurrentHashMap<>();
 
         // parse the inventory file
-        File inventoryText = new File("inventory.txt");
+        File inventoryText = new File(args[0]);
         Scanner reader = new Scanner(inventoryText);
         while (reader.hasNextLine()) {
-            String[] data = reader.nextLine().split(" ");
-            inventory.put(data[0], Integer.parseInt(data[1]));
+            String[] data = reader.nextLine().split("\" ");
+            inventory.put(data[0].substring(1), Integer.parseInt(data[data.length-1]));
         }
-        Library library = new Library(inventory);
-        // TODO: handle request from clients
+        System.out.println(inventory);
+        OurLibrary ourLibrary = new OurLibrary(inventory);
         try {
             ServerSocket tcpListener = new ServerSocket(tcpPort);
             DatagramSocket datagramSocket = new DatagramSocket(udpPort);
@@ -43,12 +43,15 @@ public class BookServer {
             while (true) {
                 byte[] buf = new byte[1024];
                 DatagramPacket rPacket = new DatagramPacket(buf, buf.length);
+                System.out.println("About to block");
                 datagramSocket.receive(rPacket);
-                Thread t = new ServerThread(tcpListener, datagramSocket, rPacket, library);
+                System.out.println("BookServer: " + Arrays.toString(rPacket.getData()));
+                Thread t = new OurServerThread(tcpListener, datagramSocket, rPacket, ourLibrary);
                 t.start();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println("Server exits");
     }
 }
