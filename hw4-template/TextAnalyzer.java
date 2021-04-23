@@ -23,25 +23,23 @@ public class TextAnalyzer extends Configured implements Tool {
         public void map(LongWritable key, Text value, Context context)
             throws IOException, InterruptedException {
             // Implementation of you mapper function
-            String paragraph = value.toString().toLowerCase();
-            String[] paragraphArr = paragraph.split("\n");
+            String line = value.toString().toLowerCase();
+            String[] words = line.split("[^a-zA-Z0-9]+");
 
             // Delete repeating characters from string array
-            for (String line : paragraphArr)
+            HashSet<String> wordsSet = new HashSet<String>(Arrays.asList(words));
+            words = wordsSet.toArray(new String[wordsSet.size()]);
+//            System.out.println("words are: " + Arrays.toString(words));
+
+            for (int i = 0; i < words.length; i++)
             {
-                String[] words = line.split("[^a-zA-Z0-9]+");
-                HashSet<String> wordsSet = new HashSet<String>(Arrays.asList(words));
-                words = wordsSet.toArray(new String[wordsSet.size()]);
-                for (int i = 0; i < words.length; i++) 
-                {
-                    Tuple edge = new Tuple();
-                    for (int j = 0; j < words.length; j++) {
-                        if (i != j) 
-                        {
-                            edge.set(new Text(words[j]), new IntWritable(1));
-                        }
+                for (int j = 0; j < words.length; j++) {
+                    if (i != j)
+                    {
+			Tuple edge = new Tuple(new Text(words[j]), new IntWritable(1));
+                	context.write(new Text(words[i]), edge);
+//			System.out.printf("edge is: %s -> %s %s\n", words[i], edge.getKey(), edge.getValue());
                     }
-                    context.write(new Text(words[i]), edge);
                 }
             }
         }
@@ -53,25 +51,33 @@ public class TextAnalyzer extends Configured implements Tool {
         public void reduce(Text key, Iterable<Tuple> values, Context context)
             throws IOException, InterruptedException
         {
-            Map<Text, IntWritable> map = new HashMap<>();
+            Map<String, IntWritable> map = new HashMap<>();
+		
+//System.out.println("current key is " + key.toString());
             for (Tuple tuple : values)
             {
-                if (map.containsKey(tuple.getKey()))
+		String dstText = tuple.getKey().toString();
+		System.out.printf("One tuple is: %s %s\n", tuple.getKey(), tuple.getValue());
+                if (map.containsKey(tuple.getKey().toString()))
                 {
-                    IntWritable tupVal = tuple.getValue();
-                    IntWritable mapVal = map.get(tuple.getKey());
-                    int combVal = tupVal.get() + mapVal.get();
-                    map.put(tuple.getKey(), new IntWritable(combVal));
+                    // IntWritable tupVal = tuple.getValue();
+                    // IntWritable mapVal = map.get(tuple.getKey());
+                    // int combVal = tupVal.get() + mapVal.get();
+
+                    map.put(dstText, new IntWritable(map.get(dstText).get()+1));
                 }
                 else
                 {
-                    map.put(tuple.getKey(), new IntWritable(1));
+                    map.put(dstText, new IntWritable(1));
                 }
+//		System.out.println(map);
             }
-            for (Map.Entry<Text, IntWritable> me : map.entrySet())
+
+            for (Map.Entry<String, IntWritable> me : map.entrySet())
             {
-                Tuple combined = new Tuple(me.getKey(), me.getValue());
-                context.write(key, combined);
+                Tuple edge = new Tuple(new Text(me.getKey()), me.getValue());
+		System.out.println("key is " + key.toString() + ", edge is: " + edge);
+                context.write(key, edge);
             }
         }
     }
@@ -85,29 +91,29 @@ public class TextAnalyzer extends Configured implements Tool {
             throws IOException, InterruptedException
         {
             // Implementation of you reducer function
-                Map<Text, IntWritable> map = new HashMap<>();
+                Map<String, IntWritable> map = new HashMap<>();
                 for (Tuple tuple : values)
                 {
+		System.out.printf("key is %s, edge is %s %s\n",key.toString(), tuple.getKey(), tuple.getValue());
+			String dstStr = tuple.getKey().toString();
                     if (map.containsKey(tuple.getKey()))
                     {
-                        IntWritable tupVal = tuple.getValue();
-                        IntWritable mapVal = map.get(tuple.getKey());
-                        int combVal = tupVal.get() + mapVal.get();
-                        map.put(tuple.getKey(), new IntWritable(combVal));
+                        map.put(dstStr, new IntWritable(map.get(dstStr).get() + tuple.getValue().get()));
                     }
                     else
                     {
-                        map.put(tuple.getKey(), new IntWritable(1));
+                        map.put(dstStr, new IntWritable(tuple.getValue().get()));
                     }
+		System.out.println(map);
                 }
                 // Write out the results; you may change the following example
                 // code to fit with your reducer function.
                 //   Write out each edge and its weight
 	            Text value = new Text();
                 
-                for(Text neighbor: map.keySet()) {    
+                for(String neighbor: map.keySet()) {    
                     String weight = map.get(neighbor).toString();
-                    value.set(" " + neighbor.toString() + " " + weight);
+                    value.set(" " + neighbor + " " + weight);
                     context.write(key, value);
             }
             //   Empty line for ending the current context key
@@ -156,6 +162,5 @@ public class TextAnalyzer extends Configured implements Tool {
         System.exit(res);
     }
 }
-
 
 
